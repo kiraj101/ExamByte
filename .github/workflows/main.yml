@@ -1,15 +1,43 @@
-name: CI/CD Workflow
+name: Gradle Web Application CI/CD
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      # 1. Code aus dem Repository abrufen
+      - name: Check out code
         uses: actions/checkout@v3
-      - name: Print message
-        run: echo "Hello GitHub Actions"
+
+      # 2. Java einrichten
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Abhängigkeiten installieren und das Projekt bauen (Gradle)
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # 4. Tests ausführen
+      - name: Run tests
+        run: ./gradlew test
+
+      # 5. Artefakte speichern (optional)
+      # Speichert das erzeugte JAR/WAR als Artefakt in GitHub Actions
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build/libs/*.jar
+
+
